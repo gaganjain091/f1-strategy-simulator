@@ -181,7 +181,7 @@ def simulate_cars(cars, lap, weather, sc, track_diff):
     active = [c for c in cars if not c.get("dnf")]
 
     for car in active:
-        car["tyre_age"] += track.get("tyre_wear_multiplier", 1.0)
+        car["tyre_age"] = int(round(car["tyre_age"] + track.get("tyre_wear_multiplier", 1.0)))
         car["fuel"] = max(0, car["fuel"] - (100/total_laps))
         tyre = car["tyre"]
         age  = car["tyre_age"]
@@ -197,7 +197,7 @@ def simulate_cars(cars, lap, weather, sc, track_diff):
 
         if should_pit and not car["is_player"]:
             car["tyre"]     = choose_tyre(weather, laps_left, car["pos"])
-            car["tyre_age"] = 0
+            car["tyre_age"] = int(0)
             car["pits"]    += 1
             car["last_pit"] = lap
             pit_loss = track.get("pit_lane_loss", 23.0)
@@ -255,7 +255,7 @@ def tick():
     laps_left = total_laps - s.lap
     s.weather = weather_progression(s.lap, s.wx_events)
     s.fuel    = max(0, s.fuel - (100/total_laps))
-    s.tyre_age += track.get("tyre_wear_multiplier", 1.0)
+    s.tyre_age = int(round(s.tyre_age + track.get("tyre_wear_multiplier", 1.0)))
 
     # SC trigger
     sc_prob = track.get("sc_probability", 0.04)
@@ -283,7 +283,7 @@ def tick():
     if s.pit_now or auto_pit:
         new_tyre     = choose_tyre(s.weather, laps_left, s.position)
         s.tyre       = new_tyre
-        s.tyre_age   = 0
+        s.tyre_age   = int(0)
         s.pits_taken += 1
         s.gap_behind = random.uniform(18, 26)
         s.gap_ahead  = random.uniform(2.0, 5.0)
@@ -292,7 +292,7 @@ def tick():
         s.position   = min(20, s.position + random.randint(2, 4))
         if player:
             player["tyre"]     = new_tyre
-            player["tyre_age"] = 0
+            player["tyre_age"] = int(0)
             player["pits"]     = s.pits_taken
             pit_loss = track.get("pit_lane_loss", 23.0)
             player["gap_to_leader"] += pit_loss * random.uniform(0.9, 1.1)
@@ -459,7 +459,7 @@ with tab1:
             <td>{'⭐ ' if car['is_player'] else ''}<b>{car['code']}</b></td>
             <td>{car['name']}</td>
             <td>{gap_str}</td>
-            <td><span class="{tc}">{tn} ({car['tyre_age']}L)</span></td>
+            <td><span class="{tc}">{tn} ({int(car['tyre_age'])}L)</span></td>
             <td>{car['pits']}</td>
             <td>{car['last_pit'] if car['last_pit'] else '—'}</td>
         </tr>"""
